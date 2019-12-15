@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Form{% endblock %}
+
+{% block content %}
+<div class="mx-auto" style="width: 200px;">
+    <h1> Medical Records</h1>
+    <h2>Fill out Form</h2>
+<form action="/records" method="POST">
+    Patient I.D.:<input type="text" name="pid"><br>
+    Last Checkup:<input type="text" name="check"><br>
+    Complaint/s:<input type="text" name="complaint"><br>
+    Diagnosis:<input type="text" name="dx"><br>
+    Treatment:<input type=text" name="tx"><br>
+    <input type="submit" value="submit!">
+ </form>
+</div>
+{% endblock %}

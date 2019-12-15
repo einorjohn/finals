@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <form method="post" action="{{ url_for('edit2') }}">
+        <!-- This is the edit form -->
+        <input type="hidden" value="{{ result[0] }}" name="id">
+        Patient ID:<input type="text" value="{{ result[1] }}" name="pid"><br>
+        Last Checkup Date:<input type="text" value="{{ result[2] }}" name="check"><br>
+        Complaint:<input type="text" value="{{ result[3] }}" name="complaint"><br>
+        Diagnosis:<input type="text" value="{{ result[4] }}" name="dx"><br>
+        Treatment:<input type="text" value="{{ result[5] }}" name="tx"><br>
+        <button name="edit" value="update" class="btn btn-primary">Submit</button>
+        <button name="edit" value="delete" class="btn btn-danger">Delete</button>
+    </form>
+
+</div>
+{% endblock %}
