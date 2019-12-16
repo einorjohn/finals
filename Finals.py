@@ -47,9 +47,11 @@ def index():
 @app.route('/about', defaults={"name": "client"})
 @app.route('/about/<name>')
 def about(name):
-    session["name"] = name
-    return render_template("about.html", home_name=name)
-
+    if session.get("name") is None:
+        return redirect(url_for("names"))
+    else:
+        name = session["name"]
+        return render_template("about.html", about_name=name)
 
 @app.route('/names', methods=["GET", "POST"])
 def names():
@@ -73,7 +75,8 @@ def names():
         elif var_hospital == '':
             return redirect(url_for('unsuccessful'))
         else:
-            return redirect(url_for('about', name=var_name, hospital=var_hospital))
+            session["name"] = var_name
+            return redirect(url_for('about'))
 
 
 @app.route('/patient')
@@ -159,7 +162,8 @@ def records():
         elif var_tx == '':
             return redirect(url_for('unsuccessful'))
         else:
-            return render_template('hospital.html')
+            results = read_second_table()
+            return render_template('hospital.html', results=results)
 
 
 @app.route('/hospital')
@@ -177,11 +181,10 @@ def edit2():
         # Retrieve that record
         conn = connect_db()
         cur = conn.cursor()
-        cur.execute('SELECT * FROM second WHERE id = ?', (edit2_id))
+        cur.execute('SELECT * FROM second WHERE id = ?', (edit2_id,))
         result = cur.fetchone()
         cur.close()
         # done
-
         return render_template('edit2.html', result=result)
     elif request.method == 'POST':
         new_pid = request.form['pid']
@@ -195,8 +198,7 @@ def edit2():
             # Update the record
             conn = connect_db()
             cur = conn.cursor()
-            cur.execute('UPDATE second SET patient_id = ?,Last_Checkup = ?,Complaint = ?,Diagnosis = ?,Treatment =?,'
-                        'WHERE id = ?', (new_pid, new_check, new_complaint, new_dx, new_tx, edit2_id))
+            cur.execute('UPDATE second SET patient_id = ?,Last_Checkup = ?,Complaint = ?,Diagnosis = ?,Treatment =? WHERE id = ?', (new_pid, new_check, new_complaint, new_dx, new_tx, edit2_id))
             conn.commit()
             cur.close()
             # end of DB transaction
@@ -204,24 +206,22 @@ def edit2():
             # Delete the record
             conn = connect_db()
             cur = conn.cursor()
-            cur.execute('DELETE FROM second WHERE id = ?', (edit2_id))
+            cur.execute('DELETE FROM second WHERE id = ?', (edit2_id,))
             conn.commit()
             cur.close()
             # end of DB transaction
 
-        results = read_all_users()
-        return render_template('patient.html', results=results)
+        results = read_second_table()
+        return render_template('hospital.html', results=results)
 
+@app.route('/logout')
+def logout():
+    if session.get("name") is None:
+        return redirect(url_for("names"))
+    else:
+        session.pop("name")
+        return render_template('logout.html')
 
-# @app.route('/history')
-# def history():
-# this route will have a form about patient's medical history, allergies, medications,etcc
-# will link to SQlite, Method: Post
-
-# @app.route('/records')
-# def records():
-# this app will contain a table with patient's medical records from /history
-# edit and delete will be available here
 
 if __name__ == '__main__':
     app.run()
